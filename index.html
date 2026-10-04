@@ -1,0 +1,590 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PrismaX at IROS 2026</title>
+<link rel="stylesheet" href="fonts.css">
+<style>
+:root{
+  --ink:#0e0a08;
+  --brown-900:#15100c;
+  --brown-800:#221912;
+  --brown-700:#3a2a20;
+  --bronze-1:#6f472e;
+  --bronze-2:#94613f;
+  --bronze-3:#b98353;
+  --bronze-4:#d6a675;
+  --bronze-5:#ecd0a6;
+  --cream:#f2ede4;
+  --paper:#faf7f1;
+  --rust:#a3432b;
+  --white:#ffffff;
+  --muted:rgba(255,255,255,.62);
+  --serif:'Instrument Serif', Georgia, serif;
+  --sans:'Inter Tight', system-ui, sans-serif;
+  --mono:'JetBrains Mono', ui-monospace, monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;background:#000;overflow:hidden}
+body{font-family:var(--sans);color:var(--white);-webkit-font-smoothing:antialiased}
+#viewport{position:fixed;inset:0;display:grid;place-items:center}
+#stage{position:relative;width:1920px;height:1080px;overflow:hidden;background:var(--brown-900);transform-origin:50% 50%;flex:none}
+.abs{position:absolute}
+.scene{position:absolute;inset:0;visibility:hidden;overflow:hidden}
+
+/* ---------- shared bits ---------- */
+.bg-dark{position:absolute;inset:0;background:
+  radial-gradient(1200px 900px at 78% 40%, #4a3426 0%, rgba(58,42,32,.55) 35%, rgba(21,16,12,0) 70%),
+  linear-gradient(180deg,#1b140f 0%,#120d0a 100%)}
+.glow{position:absolute;width:1100px;height:1100px;border-radius:50%;
+  background:radial-gradient(closest-side, rgba(214,166,117,.22), rgba(214,166,117,0));filter:blur(20px)}
+.kicker{font-family:var(--mono);font-size:20px;letter-spacing:.18em;text-transform:uppercase;color:var(--bronze-4);display:flex;align-items:center;gap:18px}
+.kicker::before{content:"";width:44px;height:1px;background:currentColor;display:block}
+.serif{font-family:var(--serif);font-weight:400;letter-spacing:-.01em;line-height:.98}
+.serif em{font-style:italic;color:var(--bronze-4)}
+.mw{display:inline-block;overflow:hidden;vertical-align:top;padding:0 .02em .12em;margin-bottom:-.12em}
+.wi{display:inline-block;will-change:transform}
+.line{display:block}
+
+/* wordmark recreation: Pr\sma(x) */
+.wm{font-family:var(--serif);font-weight:400;line-height:1;white-space:nowrap;display:inline-flex;align-items:baseline;letter-spacing:-.015em}
+.wm .ch{display:inline-block}
+.wm .slash{display:inline-block;width:.34em;height:.72em;position:relative;margin:0 -.03em 0 -.02em}
+.wm .slash::after{content:"";position:absolute;left:50%;top:-.03em;width:.058em;height:.8em;background:currentColor;transform:translateX(-50%) rotate(-22deg);transform-origin:50% 50%}
+.wm sup{font-size:.36em;vertical-align:super;margin-left:.06em;letter-spacing:0;display:inline-block;transform-origin:0 100%;position:relative;top:-.55em}
+.wm-mask{display:inline-flex;overflow:hidden;padding:.08em .04em .14em;margin:-.08em -.04em -.14em}
+
+/* photo cards */
+.card{position:absolute;overflow:hidden;background:#000;box-shadow:0 40px 80px -20px rgba(0,0,0,.65),0 0 0 1px rgba(255,255,255,.06)}
+.card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;will-change:transform}
+.chip{position:absolute;font-family:var(--mono);font-size:15px;letter-spacing:.14em;text-transform:uppercase;background:var(--bronze-4);color:var(--ink);padding:7px 12px 6px;white-space:nowrap}
+
+/* planks (booth graphic motif) */
+.planks{position:absolute;right:0;top:0;width:1000px;height:1080px;pointer-events:none}
+.planks svg{width:100%;height:100%;display:block;overflow:visible}
+
+/* ---------- S1 intro ---------- */
+#s1 .wm{font-size:230px;position:absolute;left:150px;top:330px}
+#s1 .rule{position:absolute;left:156px;top:612px;width:760px;height:2px;background:var(--bronze-4);transform-origin:0 50%}
+#s1 .tag{position:absolute;left:156px;top:650px;font-family:var(--serif);font-size:64px;line-height:1.05}
+#s1 .live{position:absolute;left:156px;top:800px;font-family:var(--mono);font-size:22px;letter-spacing:.2em;color:var(--bronze-4);white-space:nowrap}
+#s1 .live b{display:inline-block;width:12px;height:12px;border-radius:50%;background:#e2553b;margin-right:16px;vertical-align:1px;box-shadow:0 0 0 6px rgba(226,85,59,.18)}
+
+/* ---------- S2 schedule ---------- */
+#s2 .copy{position:absolute;left:150px;top:250px;width:900px}
+#s2 .copy .serif{font-size:150px;margin-top:34px}
+#s2 .meta{font-family:var(--mono);font-size:22px;letter-spacing:.14em;color:var(--muted);margin-top:44px;display:flex;gap:28px}
+#s2 .meta span{display:inline-block}
+#s2 .meta i{font-style:normal;color:var(--bronze-4)}
+#s2 .card{left:1160px;top:140px;width:600px;height:800px}
+#s2 .hl{position:absolute;left:13.6%;top:73.5%;width:72.4%;height:5%;border:3px solid var(--bronze-4);transform:rotate(2.2deg);box-shadow:0 0 0 2000px rgba(14,10,8,0);}
+#s2 .hl .chip{left:-3px;top:-38px;font-size:13px;padding:5px 9px 4px}
+
+/* ---------- S3 talk ---------- */
+#s3 .photo{position:absolute;left:0;top:0;width:960px;height:1080px;overflow:hidden}
+#s3 .photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 30%;transform-origin:30% 35%}
+#s3 .photo::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(14,10,8,0) 70%,rgba(18,13,10,.9) 100%)}
+#s3 .copy{position:absolute;left:1040px;top:170px;width:780px}
+#s3 .copy .serif{font-size:118px;margin-top:30px}
+#s3 .div{width:100%;height:1px;background:rgba(255,255,255,.18);margin:46px 0 30px;transform-origin:0 50%}
+#s3 .who{display:flex;align-items:center;gap:22px}
+#s3 .who .bar{width:6px;height:64px;background:var(--bronze-4);transform-origin:50% 100%}
+#s3 .who .n{font-size:38px;font-weight:600;letter-spacing:-.01em}
+#s3 .who .r{font-family:var(--mono);font-size:17px;letter-spacing:.12em;color:var(--muted);margin-top:6px;text-transform:uppercase}
+#s3 .quote{margin-top:48px;padding:26px 30px 28px;background:rgba(255,255,255,.05);border-left:3px solid var(--bronze-4)}
+#s3 .quote .q{font-family:var(--serif);font-style:italic;font-size:54px;line-height:1.05}
+#s3 .quote .c{font-family:var(--mono);font-size:15px;letter-spacing:.2em;color:var(--bronze-4);margin-top:16px}
+
+/* ---------- S4 booth ---------- */
+#s4 .copy{position:absolute;left:130px;top:200px;width:620px}
+#s4 .copy .serif{font-size:104px;margin-top:30px}
+#s4 .copy p{font-size:26px;line-height:1.45;color:var(--muted);margin-top:36px;max-width:540px}
+#s4 .c1{left:800px;top:100px;width:630px;height:840px}
+#s4 .c2{left:1420px;top:390px;width:410px;height:547px}
+#s4 .bx{position:absolute;border:2px solid var(--bronze-5);box-shadow:0 0 18px rgba(236,208,166,.35)}
+#s4 .bx .chip{font-size:11px;padding:3px 6px 2px;letter-spacing:.08em;top:-21px;left:-2px;background:var(--bronze-5)}
+#s4 .vf{position:absolute;inset:24px;pointer-events:none}
+#s4 .vf i{position:absolute;width:44px;height:44px;border-color:rgba(255,255,255,.9);border-style:solid;border-width:0}
+#s4 .vf i:nth-child(1){left:0;top:0;border-left-width:3px;border-top-width:3px}
+#s4 .vf i:nth-child(2){right:0;top:0;border-right-width:3px;border-top-width:3px}
+#s4 .vf i:nth-child(3){left:0;bottom:0;border-left-width:3px;border-bottom-width:3px}
+#s4 .vf i:nth-child(4){right:0;bottom:0;border-right-width:3px;border-bottom-width:3px}
+#s4 .rec{position:absolute;left:46px;top:44px;font-family:var(--mono);font-size:14px;letter-spacing:.16em;color:#fff;background:rgba(14,10,8,.72);padding:7px 11px 6px}
+#s4 .rec b{display:inline-block;width:10px;height:10px;border-radius:50%;background:#e2553b;margin-right:10px}
+
+/* ---------- S5 pillars (cream) ---------- */
+#s5{background:var(--cream);color:var(--ink)}
+#s5 .kicker{color:var(--rust)}
+#s5 .serif em{color:var(--rust)}
+#s5 .head{position:absolute;left:130px;top:150px}
+#s5 .head .serif{font-size:96px;margin-top:28px}
+#s5 .cards{position:absolute;left:130px;top:520px;display:flex;gap:40px}
+#s5 .pc{width:526px;height:410px;background:var(--paper);border:1px solid rgba(14,10,8,.09);padding:40px 42px;position:relative;box-shadow:0 30px 60px -30px rgba(60,40,20,.25)}
+#s5 .pc .num{font-family:var(--mono);font-size:16px;letter-spacing:.18em;color:var(--rust);position:absolute;right:40px;top:44px}
+#s5 .pc svg{width:84px;height:84px;display:block;overflow:visible}
+#s5 .pc svg *{fill:none;stroke:var(--ink);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+#s5 .pc h3{font-family:var(--serif);font-weight:400;font-size:46px;margin-top:40px;line-height:1}
+#s5 .pc p{font-size:22px;line-height:1.45;color:rgba(14,10,8,.66);margin-top:18px}
+#s5 .pc .bar{position:absolute;left:0;bottom:0;height:4px;width:100%;background:var(--rust);transform-origin:0 50%}
+#s5 .planks{opacity:.16}
+
+/* ---------- S6 numbers ---------- */
+#s6 .k{position:absolute;left:130px;top:130px}
+#s6 .rows{position:absolute;left:130px;top:200px;width:940px}
+#s6 .row{height:205px;display:flex;align-items:center;justify-content:space-between;position:relative}
+#s6 .row .sep{position:absolute;left:0;bottom:0;width:100%;height:1px;background:rgba(255,255,255,.16);transform-origin:0 50%}
+#s6 .num{font-family:var(--serif);font-size:168px;line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+#s6 .num small{font-size:.5em;color:var(--bronze-4);margin-left:.12em;font-style:italic}
+#s6 .lab{font-family:var(--mono);font-size:19px;letter-spacing:.16em;color:var(--muted);text-align:right;line-height:1.6}
+#s6 .card{left:1210px;top:120px;width:560px;height:747px}
+#s6 .backed{position:absolute;left:130px;top:910px;display:flex;align-items:center;gap:0}
+#s6 .backed .bl{font-family:var(--mono);font-size:16px;letter-spacing:.2em;color:var(--bronze-4);margin-right:40px}
+#s6 .backed .bn{font-size:34px;font-weight:600;letter-spacing:-.01em;color:rgba(255,255,255,.9);padding:0 34px;border-left:1px solid rgba(255,255,255,.2)}
+
+/* ---------- S7 merch ---------- */
+#s7 .slogan{position:absolute;left:130px;top:250px;font-weight:800;font-size:168px;line-height:.96;letter-spacing:-.035em}
+#s7 .slogan .sw{display:inline-block;margin-right:.18em;transform-origin:20% 80%}
+#s7 .slogan .sw:last-child{color:var(--bronze-4)}
+#s7 .url{position:absolute;left:136px;top:700px;font-family:var(--mono);font-size:24px;letter-spacing:.2em;color:var(--muted)}
+#s7 .ct{left:1150px;top:80px;width:600px;height:800px}
+#s7 .ck{left:930px;top:600px;width:400px;height:400px}
+#s7 .ck img{object-position:50% 100%;transform-origin:42% 96%}
+
+/* ---------- S8 outro ---------- */
+#s8 .wm{font-size:250px;position:absolute;left:150px;top:290px}
+#s8 .tag{position:absolute;left:156px;top:600px;font-family:var(--serif);font-size:70px}
+#s8 .rule{position:absolute;left:156px;top:730px;width:820px;height:1px;background:rgba(255,255,255,.22);transform-origin:0 50%}
+#s8 .url{position:absolute;left:156px;top:768px;font-family:var(--mono);font-size:34px;letter-spacing:.08em}
+#s8 .url u{text-decoration:none;position:relative}
+#s8 .url u::after{content:"";position:absolute;left:0;right:0;bottom:-8px;height:2px;background:var(--bronze-4);transform:scaleX(var(--ul,0));transform-origin:0 50%}
+#s8 .thx{position:absolute;left:156px;top:850px;font-family:var(--mono);font-size:19px;letter-spacing:.2em;color:var(--bronze-4);text-transform:uppercase}
+
+/* ---------- overlays ---------- */
+#wipe{position:absolute;inset:0;pointer-events:none;z-index:40}
+#wipe .band{position:absolute;top:0;left:-300px;width:2520px;height:1080px;transform:translateX(2600px) skewX(-20deg)}
+#hud{position:absolute;inset:0;z-index:30;pointer-events:none;color:#fff;opacity:0}
+#hud .tl{position:absolute;left:64px;top:46px;font-size:38px}
+#hud .tr{position:absolute;right:64px;top:58px;font-family:var(--mono);font-size:15px;letter-spacing:.2em;opacity:.8}
+#hud .bl{position:absolute;left:64px;bottom:58px;font-family:var(--mono);font-size:15px;letter-spacing:.2em;opacity:.8;text-transform:uppercase}
+#hud .br{position:absolute;right:64px;bottom:58px;font-family:var(--mono);font-size:15px;letter-spacing:.2em;opacity:.8}
+#hud .prog{position:absolute;left:64px;right:64px;bottom:40px;height:1px;background:currentColor;opacity:.18}
+#hud .prog i{position:absolute;left:0;top:-1px;height:3px;width:100%;background:var(--bronze-4);transform-origin:0 50%;transform:scaleX(0)}
+#grain{position:absolute;inset:-64px;z-index:50;pointer-events:none;opacity:.085;mix-blend-mode:overlay}
+#vignette{position:absolute;inset:0;z-index:49;pointer-events:none;background:radial-gradient(130% 100% at 50% 50%, rgba(0,0,0,0) 55%, rgba(0,0,0,.42) 100%)}
+#flash{position:absolute;inset:0;z-index:45;background:#fff;opacity:0;pointer-events:none}
+
+/* preview controls (hidden while rendering) */
+#ctrl{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);display:flex;gap:10px;align-items:center;font:500 13px/1 var(--mono);color:#fff;background:rgba(20,15,12,.85);padding:10px 14px;border-radius:999px;z-index:99}
+#ctrl button{all:unset;cursor:pointer;padding:6px 12px;border-radius:999px;background:var(--bronze-4);color:var(--ink);font-weight:600}
+#ctrl input{width:min(46vw,520px);accent-color:var(--bronze-4)}
+.render #ctrl{display:none}
+</style>
+</head>
+<body>
+<div id="viewport"><div id="stage">
+
+  <div class="bg-dark"></div>
+  <div class="glow" id="glow" style="left:900px;top:-200px"></div>
+
+  <!-- S1 · intro -->
+  <section class="scene" id="s1">
+    <div class="planks" data-planks></div>
+    <div class="wm" data-wm><span class="wm-mask"><span class="ch">P</span></span><span class="wm-mask"><span class="ch">r</span></span><span class="wm-mask"><span class="ch slash"></span></span><span class="wm-mask"><span class="ch">s</span></span><span class="wm-mask"><span class="ch">m</span></span><span class="wm-mask"><span class="ch">a</span></span><sup>(x)</sup></div>
+    <div class="rule"></div>
+    <div class="tag" data-split>The service layer for physical AI</div>
+    <div class="live"><b></b>LIVE FROM IROS 2026 · PITTSBURGH</div>
+  </section>
+
+  <!-- S2 · schedule -->
+  <section class="scene" id="s2">
+    <div class="copy">
+      <div class="kicker">01 — Tech Talk Stage</div>
+      <div class="serif"><span class="line" data-split>On stage at</span><span class="line" data-split><em>IROS 2026</em></span></div>
+      <div class="meta"><span>TUE · SEP 29</span><span><i>3:15 PM</i></span><span>PITTSBURGH, PA</span></div>
+    </div>
+    <div class="card" id="sched"><img src="assets/img/schedule.jpg" alt=""><div class="hl"><span class="chip">PrismaX</span></div></div>
+  </section>
+
+  <!-- S3 · talk -->
+  <section class="scene" id="s3">
+    <div class="photo"><img src="assets/img/talk.jpg" alt=""></div>
+    <div class="copy">
+      <div class="kicker">02 — The Talk · 3:15 PM</div>
+      <div class="serif"><span class="line" data-split>What makes</span><span class="line" data-split><em>good</em> robotics</span><span class="line" data-split>data?</span></div>
+      <div class="div"></div>
+      <div class="who"><div class="bar"></div><div><div class="n">Bayley Wang</div><div class="r">PrismaX · IROS 2026 Tech Talk</div></div></div>
+      <div class="quote"><div class="q">“Relative actions help a lot.”</div><div class="c">KEY FINDING — REAL-TO-REAL GAP</div></div>
+    </div>
+  </section>
+
+  <!-- S4 · booth -->
+  <section class="scene" id="s4">
+    <div class="glow" style="left:500px;top:100px;opacity:.8"></div>
+    <div class="copy">
+      <div class="kicker">03 — The Booth</div>
+      <div class="serif"><span class="line" data-split>Teleoperation,</span><span class="line" data-split><em>live</em> on the</span><span class="line" data-split>floor.</span></div>
+      <p>Bimanual arms, real objects, real tasks. Every session is a demonstration a model can learn from.</p>
+    </div>
+    <div class="card c1" id="boothCard">
+      <img src="assets/img/booth.jpg" alt="">
+      <div class="bx" style="left:26.2%;top:58.6%;width:17%;height:9%"><span class="chip">ARM_L · 6DOF</span></div>
+      <div class="bx" style="left:46.4%;top:60.6%;width:14.2%;height:11.4%"><span class="chip">ARM_R · 6DOF</span></div>
+      <div class="bx" style="left:15.2%;top:71.6%;width:6%;height:4.6%"><span class="chip">APPLE .98</span></div>
+      <div class="bx" style="left:29.2%;top:74.2%;width:10.2%;height:8%"><span class="chip">BANANA .97</span></div>
+      <div class="bx" style="left:34.2%;top:78.4%;width:8.6%;height:6.8%"><span class="chip">ORANGE .95</span></div>
+      <div class="bx" style="left:40.2%;top:77.4%;width:5.4%;height:5%"><span class="chip">LEMON .96</span></div>
+      <div class="vf"><i></i><i></i><i></i><i></i></div>
+      <div class="rec"><b></b>REC · TELEOP SESSION</div>
+    </div>
+    <div class="card c2" id="chatCard"><img src="assets/img/booth-chat.jpg" alt=""><span class="chip" style="left:0;bottom:0">Poster hall · Booth</span></div>
+  </section>
+
+  <!-- S5 · pillars -->
+  <section class="scene" id="s5">
+    <div class="planks" data-planks style="top:300px"></div>
+    <div class="head">
+      <div class="kicker">04 — What we do</div>
+      <div class="serif"><span class="line" data-split>Teleoperation and egocentric</span><span class="line" data-split>data for <em>physical AI</em></span></div>
+    </div>
+    <div class="cards">
+      <div class="pc"><span class="num">01</span>
+        <svg viewBox="0 0 84 84"><path d="M12 76h32"/><path d="M28 76V62"/><circle cx="28" cy="58" r="5"/><path d="M31 54l14-20"/><circle cx="47" cy="31" r="5"/><path d="M52 30l14 4"/><path d="M66 26v16"/><path d="M66 26l9-4"/><path d="M66 42l9 4"/></svg>
+        <h3>Teleoperated manipulation</h3><p>Skilled operators teleoperate robot arms and humanoids through real tasks.</p><i class="bar"></i></div>
+      <div class="pc"><span class="num">02</span>
+        <svg viewBox="0 0 84 84"><path d="M6 42c10-16 22-24 36-24s26 8 36 24c-10 16-22 24-36 24S16 58 6 42z"/><circle cx="42" cy="42" r="12"/><circle cx="42" cy="42" r="4"/><path d="M8 10h12M8 10v12M76 10H64M76 10v12M8 74h12M8 74V62M76 74H64M76 74V62"/></svg>
+        <h3>Egocentric capture</h3><p>First-person footage of hands-on tasks, framed for embodied learning.</p><i class="bar"></i></div>
+      <div class="pc"><span class="num">03</span>
+        <svg viewBox="0 0 84 84"><path d="M8 20h68M8 42h68M8 64h68"/><circle cx="54" cy="20" r="7"/><circle cx="26" cy="42" r="7"/><circle cx="62" cy="64" r="7"/></svg>
+        <h3>Customizable data</h3><p>Describe the task, embodiment and scenes — delivered to spec, fast.</p><i class="bar"></i></div>
+    </div>
+  </section>
+
+  <!-- S6 · numbers -->
+  <section class="scene" id="s6">
+    <div class="glow" style="left:-300px;top:200px;opacity:.7"></div>
+    <div class="kicker k">05 — By the numbers</div>
+    <div class="rows">
+      <div class="row"><div class="num"><span data-count="0">0</span><small>hrs</small></div><div class="lab">CAPACITY<br>PER MONTH</div><i class="sep"></i></div>
+      <div class="row"><div class="num"><span data-count="1">0</span><small>+</small></div><div class="lab">DEPLOYED<br>SCENARIOS</div><i class="sep"></i></div>
+      <div class="row"><div class="num"><span data-count="2">0</span><small>+</small></div><div class="lab">EPISODES<br>DELIVERED</div><i class="sep"></i></div>
+    </div>
+    <div class="card" id="flyerCard"><img src="assets/img/flyer.jpg" alt="" style="object-position:50% 20%"></div>
+    <div class="backed"><span class="bl">BACKED BY</span><span class="bn">a16z</span><span class="bn">NVIDIA</span><span class="bn">MIT</span><span class="bn">Stanford University</span></div>
+  </section>
+
+  <!-- S7 · merch -->
+  <section class="scene" id="s7">
+    <div class="glow" style="left:800px;top:-100px"></div>
+    <div class="slogan"><span class="sw">Let</span><span class="sw">there</span><br><span class="sw">be</span><span class="sw">robots.</span></div>
+    <div class="url">PRISMAX.AI</div>
+    <div class="card ct"><img src="assets/img/tote.jpg" alt=""></div>
+    <div class="card ck"><img src="assets/img/flyer.jpg" alt=""></div>
+  </section>
+
+  <!-- S8 · outro -->
+  <section class="scene" id="s8">
+    <div class="planks" data-planks></div>
+    <div class="wm" data-wm><span class="wm-mask"><span class="ch">P</span></span><span class="wm-mask"><span class="ch">r</span></span><span class="wm-mask"><span class="ch slash"></span></span><span class="wm-mask"><span class="ch">s</span></span><span class="wm-mask"><span class="ch">m</span></span><span class="wm-mask"><span class="ch">a</span></span><sup>(x)</sup></div>
+    <div class="tag" data-split>The service layer for physical AI</div>
+    <div class="rule"></div>
+    <div class="url"><u>prismax.ai</u></div>
+    <div class="thx">Thank you, IROS 2026 · Pittsburgh</div>
+  </section>
+
+  <div id="flash"></div>
+  <div id="wipe"></div>
+
+  <div id="hud">
+    <div class="tl wm"><span>Pr</span><span class="slash"></span><span>sma</span><sup>(x)</sup></div>
+    <div class="tr">IROS 2026 · PITTSBURGH</div>
+    <div class="bl" id="chapter">01 / 05 — Tech Talk Stage</div>
+    <div class="br">PRISMAX.AI</div>
+    <div class="prog"><i id="progbar"></i></div>
+  </div>
+
+  <div id="vignette"></div>
+  <div id="grain"></div>
+</div></div>
+
+<div id="ctrl"><button id="play">Play</button><input id="scrub" type="range" min="0" max="40" step="0.01" value="0"><span id="tc">00.00</span></div>
+<audio id="music" src="out/soundtrack.wav" preload="auto"></audio>
+
+<script src="vendor/gsap.min.js"></script>
+<script>
+(() => {
+const DURATION = 40;
+const FPS = 30;
+const RENDER = new URLSearchParams(location.search).has('render');
+if (RENDER) document.documentElement.classList.add('render');
+
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+
+/* ---------- fit stage to window ---------- */
+const stage = $('#stage');
+function fit() {
+  const s = RENDER ? 1 : Math.min(innerWidth / 1920, innerHeight / 1080);
+  stage.style.transform = `scale(${s})`;
+}
+addEventListener('resize', fit); fit();
+
+/* ---------- split text into masked words ---------- */
+$$('[data-split]').forEach(el => {
+  const walk = node => {
+    [...node.childNodes].forEach(n => {
+      if (n.nodeType === 3) {
+        const frag = document.createDocumentFragment();
+        n.textContent.split(/(\s+)/).forEach(tok => {
+          if (!tok) return;
+          if (/^\s+$/.test(tok)) { frag.appendChild(document.createTextNode(' ')); return; }
+          const m = document.createElement('span'); m.className = 'mw';
+          const i = document.createElement('span'); i.className = 'wi'; i.textContent = tok;
+          m.appendChild(i); frag.appendChild(m);
+        });
+        n.replaceWith(frag);
+      } else if (n.nodeType === 1) walk(n);
+    });
+  };
+  walk(el);
+});
+
+/* ---------- planks (stair-stepped bronze slats from the booth wall) ---------- */
+const PLANK_COLORS = [['#5a3a26','#7a5035'],['#7a5035','#a06c45'],['#94613f','#c08a5b'],['#b07a4d','#d6a675'],['#c79461','#e6c193'],['#d9ae7c','#f0d6ae']];
+$$('[data-planks]').forEach((host, h) => {
+  let svg = `<svg viewBox="0 0 1000 1080" preserveAspectRatio="xMaxYMid slice"><defs>`;
+  PLANK_COLORS.forEach((c, i) => svg += `<linearGradient id="pg${h}_${i}" x1="0" y1="0" x2="1" y2="0.3"><stop offset="0" stop-color="${c[1]}"/><stop offset="1" stop-color="${c[0]}"/></linearGradient>`);
+  svg += `</defs>`;
+  PLANK_COLORS.forEach((c, i) => {
+    const y = 250 + i * 118, lx = 470 - i * 64, th = 76;
+    // a slat: long sliver rising to the right, beveled at the left end
+    svg += `<g class="plank"><polygon fill="url(#pg${h}_${i})" points="${lx},${y + 92} ${lx + 70},${y + 92 - th} 1100,${y - 150} 1100,${y - 150 + th + 40}"/>` +
+           `<polygon fill="rgba(0,0,0,.28)" points="${lx},${y + 92} 1100,${y - 150 + th + 40} 1100,${y - 150 + th + 58} ${lx + 6},${y + 104}"/></g>`;
+  });
+  svg += `</svg>`;
+  host.innerHTML = svg;
+});
+
+/* ---------- wipe bands ---------- */
+const BAND_COLORS = ['#6f472e', '#94613f', '#b98353', '#d6a675', '#ecd0a6', '#15100c'];
+const wipeEl = $('#wipe');
+BAND_COLORS.forEach(c => { const b = document.createElement('div'); b.className = 'band'; b.style.background = c; wipeEl.appendChild(b); });
+const bands = $$('.band', wipeEl);
+
+/* ---------- film grain (seeded, deterministic per frame) ---------- */
+function rng(seed) { return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+(() => {
+  const c = document.createElement('canvas'); c.width = c.height = 256;
+  const g = c.getContext('2d'), d = g.createImageData(256, 256), r = rng(7);
+  for (let i = 0; i < d.data.length; i += 4) { const v = r() * 255; d.data[i] = d.data[i + 1] = d.data[i + 2] = v; d.data[i + 3] = 255; }
+  g.putImageData(d, 0, 0);
+  $('#grain').style.backgroundImage = `url(${c.toDataURL()})`;
+})();
+
+/* =================================================================
+   TIMELINE  (120 BPM · one bar = 2s · cuts land on bar lines)
+   ================================================================= */
+gsap.defaults({ ease: 'expo.out', duration: 0.9 });
+const tl = gsap.timeline({ paused: true });
+const show = (id, at) => tl.set(id, { visibility: 'visible' }, at);
+const hide = (id, at) => tl.set(id, { visibility: 'hidden' }, at);
+const words = sel => $$(`${sel} .wi`);
+const rise = (targets, at, o = {}) => tl.fromTo(targets, { yPercent: 115 }, { yPercent: 0, duration: 1, stagger: 0.06, ...o }, at);
+
+function wipe(at) {
+  const n = bands.length;
+  bands.forEach((b, i) => {
+    tl.fromTo(b, { x: 2600 }, { x: 0, duration: 0.6, ease: 'power3.in' }, at - 0.6 - (n - 1 - i) * 0.055);
+    tl.to(b, { x: -2800, duration: 0.75, ease: 'power3.out', immediateRender: false }, at + (n - 1 - i) * 0.05);
+  });
+}
+function planksIn(scope, at) {
+  tl.fromTo(`${scope} .plank`, { x: 900, opacity: 0 }, { x: 0, opacity: 1, duration: 1.3, stagger: 0.07, ease: 'expo.out' }, at);
+}
+function wordmarkIn(scope, at) {
+  tl.fromTo(`${scope} .wm .ch`, { yPercent: 120 }, { yPercent: 0, duration: 1.1, stagger: 0.055 }, at);
+  tl.fromTo(`${scope} .wm sup`, { scale: 0, rotation: -25, opacity: 0 }, { scale: 1, rotation: 0, opacity: 1, duration: 0.8, ease: 'back.out(2.2)' }, at + 0.5);
+}
+
+/* ---------- S1 · intro (0–4) ---------- */
+show('#s1', 0);
+planksIn('#s1', 0.05);
+tl.fromTo('#s1 .rule', { scaleX: 0 }, { scaleX: 1, duration: 1.4, ease: 'expo.inOut' }, 0.2);
+wordmarkIn('#s1', 0.35);
+rise(words('#s1 .tag'), 1.3);
+tl.fromTo('#s1 .live', { clipPath: 'inset(0 100% 0 0)' }, { clipPath: 'inset(0 0% 0 0)', duration: 0.9, ease: 'steps(32)' }, 2.0);
+tl.fromTo('#s1 .live b', { scale: 0 }, { scale: 1, duration: 0.4, ease: 'back.out(3)' }, 2.0);
+tl.fromTo('#s1 [data-wm], #s1 .tag', { x: 0 }, { x: -30, duration: 4, ease: 'none' }, 0);
+tl.fromTo('#s1 .planks', { x: 0 }, { x: 40, duration: 4, ease: 'none' }, 0);
+wipe(4);
+hide('#s1', 4);
+
+/* ---------- S2 · schedule (4–8) ---------- */
+show('#s2', 4);
+tl.fromTo('#s2 .kicker', { opacity: 0, x: -30 }, { opacity: 1, x: 0, duration: 0.8 }, 4.25);
+rise(words('#s2 .serif'), 4.3, { stagger: 0.09, duration: 1.1 });
+tl.fromTo('#s2 .meta span', { opacity: 0, y: 20 }, { opacity: 1, y: 0, stagger: 0.08, duration: 0.7 }, 4.8);
+tl.fromTo('#sched', { y: 160, rotation: -9, opacity: 0 }, { y: 0, rotation: -3, opacity: 1, duration: 1.3 }, 4.15);
+tl.fromTo('#sched img', { scale: 1.25 }, { scale: 1, duration: 1.8, ease: 'power3.out' }, 4.15);
+tl.fromTo('#sched .hl', { clipPath: 'inset(0 100% 0 0)', opacity: 1 }, { clipPath: 'inset(-40px 0% -4px -4px)', duration: 0.7, ease: 'power3.inOut' }, 5.25);
+tl.fromTo('#sched .hl', { boxShadow: '0 0 0 2000px rgba(14,10,8,0)' }, { boxShadow: '0 0 0 2000px rgba(14,10,8,.55)', duration: 0.6, ease: 'power2.out' }, 5.5);
+// push into the highlighted row
+tl.to('#s2 .copy', { x: -120, opacity: 0, duration: 0.7, ease: 'power3.in' }, 6.0);
+tl.to('#sched', { x: -500, y: -228, rotation: 0, scale: 2.35, transformOrigin: '50% 75.4%', duration: 1.25, ease: 'expo.inOut' }, 6.0);
+tl.to('#sched', { scale: 7, opacity: 0, filter: 'blur(14px)', duration: 0.5, ease: 'power3.in' }, 7.5);
+tl.fromTo('#flash', { opacity: 0 }, { opacity: 0.9, duration: 0.18, ease: 'power2.in' }, 7.82);
+tl.to('#flash', { opacity: 0, duration: 0.45, ease: 'power2.out' }, 8.0);
+hide('#s2', 8);
+
+/* ---------- S3 · talk (8–14) ---------- */
+show('#s3', 8);
+tl.fromTo('#s3 .photo img', { scale: 1.35 }, { scale: 1.0, duration: 1.4, ease: 'expo.out' }, 8);
+tl.to('#s3 .photo img', { scale: 1.12, duration: 4.6, ease: 'none' }, 9.4);
+tl.fromTo('#s3 .kicker', { opacity: 0, x: -30 }, { opacity: 1, x: 0, duration: 0.8 }, 8.25);
+rise(words('#s3 .serif'), 8.35, { stagger: 0.07, duration: 1.1 });
+tl.fromTo('#s3 .div', { scaleX: 0 }, { scaleX: 1, duration: 1.2, ease: 'expo.inOut' }, 9.1);
+tl.fromTo('#s3 .who .bar', { scaleY: 0 }, { scaleY: 1, duration: 0.6, ease: 'power3.out' }, 9.5);
+tl.fromTo('#s3 .who .n, #s3 .who .r', { opacity: 0, x: -24 }, { opacity: 1, x: 0, stagger: 0.1, duration: 0.8 }, 9.65);
+tl.fromTo('#s3 .quote', { opacity: 0, y: 40, clipPath: 'inset(0 100% 0 0)' }, { opacity: 1, y: 0, clipPath: 'inset(0 0% 0 0)', duration: 1.0, ease: 'expo.inOut' }, 10.9);
+tl.fromTo('#s3 .quote .q', { x: 30 }, { x: 0, duration: 1.4 }, 11.1);
+// push transition → S4
+tl.to('#s3', { x: -1920, duration: 0.8, ease: 'expo.inOut' }, 13.6);
+hide('#s3', 14.4);
+
+/* ---------- S4 · booth (14–20) ---------- */
+show('#s4', 13.6);
+tl.fromTo('#s4', { x: 1920 }, { x: 0, duration: 0.8, ease: 'expo.inOut' }, 13.6);
+tl.fromTo('#s4 .kicker', { opacity: 0, x: -30 }, { opacity: 1, x: 0, duration: 0.8 }, 14.2);
+rise(words('#s4 .serif'), 14.25, { stagger: 0.07, duration: 1.1 });
+tl.fromTo('#s4 .copy p', { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 1 }, 15.0);
+tl.fromTo('#boothCard', { y: 260, rotation: 4, opacity: 0 }, { y: 0, rotation: -2, opacity: 1, duration: 1.3 }, 13.95);
+tl.fromTo('#boothCard img', { scale: 1.2 }, { scale: 1.0, duration: 2, ease: 'power3.out' }, 13.95);
+tl.fromTo('#chatCard', { x: 340, rotation: 12, opacity: 0 }, { x: 0, rotation: 4, opacity: 1, duration: 1.3 }, 14.35);
+tl.fromTo('#s4 .vf i', { scale: 1.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.6, stagger: 0.04, ease: 'power3.out' }, 15.1);
+tl.fromTo('#s4 .rec', { opacity: 0 }, { opacity: 1, duration: 0.3, ease: 'none' }, 15.3);
+$$('#s4 .bx').forEach((b, i) => {
+  const at = 15.5 + i * 0.16;
+  tl.fromTo(b, { scale: 1.5, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.45, ease: 'power3.out' }, at);
+  tl.fromTo($('.chip', b), { clipPath: 'inset(0 100% 0 0)' }, { clipPath: 'inset(0 0% 0 0)', duration: 0.3, ease: 'steps(10)' }, at + 0.12);
+});
+tl.to('#boothCard', { y: -30, duration: 5, ease: 'none' }, 15.3);
+tl.to('#chatCard', { y: -70, duration: 5, ease: 'none' }, 15.7);
+// cream panel rises on a diagonal → S5
+show('#s5', 19.2);
+tl.fromTo('#s5', { clipPath: 'polygon(0% 100%, 100% 135%, 100% 135%, 0% 135%)' },
+                 { clipPath: 'polygon(0% -35%, 100% 0%, 100% 100%, 0% 100%)', duration: 0.95, ease: 'expo.inOut' }, 19.25);
+tl.to('#s4', { y: -140, duration: 0.95, ease: 'expo.inOut' }, 19.25);
+hide('#s4', 20.2);
+
+/* ---------- S5 · pillars (20–26) ---------- */
+tl.fromTo('#s5 .kicker', { opacity: 0, x: -30 }, { opacity: 1, x: 0, duration: 0.8 }, 19.9);
+rise(words('#s5 .serif'), 19.95, { stagger: 0.06, duration: 1.1 });
+planksIn('#s5', 20.0);
+tl.fromTo('#s5 .pc', { y: 120, opacity: 0 }, { y: 0, opacity: 1, duration: 1.2, stagger: 0.22 }, 20.6);
+$$('#s5 .pc').forEach((pc, i) => {
+  const at = 20.9 + i * 0.22;
+  const paths = $$('svg *', pc);
+  paths.forEach(p => { const L = (p.getTotalLength ? p.getTotalLength() : 200) + 2; p.style.strokeDasharray = L; p.dataset.len = L; });
+  tl.fromTo(paths, { strokeDashoffset: (k, el) => +el.dataset.len }, { strokeDashoffset: 0, duration: 1.2, stagger: 0.06, ease: 'power2.inOut' }, at);
+  tl.fromTo($('.bar', pc), { scaleX: 0 }, { scaleX: 1, duration: 1.4, ease: 'expo.inOut' }, at + 0.3);
+});
+tl.to('#s5 .cards', { x: -24, duration: 5, ease: 'none' }, 21);
+wipe(26);
+hide('#s5', 26);
+
+/* ---------- S6 · numbers (26–32) ---------- */
+show('#s6', 26);
+tl.fromTo('#s6 .kicker', { opacity: 0, x: -30 }, { opacity: 1, x: 0, duration: 0.8 }, 26.2);
+const counters = [{ v: 0 }, { v: 0 }, { v: 0 }];
+const fmt = [v => Math.round(v).toLocaleString('en-US'), v => Math.round(v).toLocaleString('en-US'), v => Math.round(v) + 'K'];
+const targets = [5000, 1700, 120];
+$$('#s6 .row').forEach((row, i) => {
+  const at = 26.35 + i * 0.4;
+  tl.fromTo($('.num', row), { yPercent: 40, opacity: 0 }, { yPercent: 0, opacity: 1, duration: 0.9 }, at);
+  tl.fromTo($('.lab', row), { opacity: 0, x: 30 }, { opacity: 1, x: 0, duration: 0.9 }, at + 0.15);
+  tl.fromTo($('.sep', row), { scaleX: 0 }, { scaleX: 1, duration: 1.4, ease: 'expo.inOut' }, at);
+  tl.fromTo(counters[i], { v: 0 }, { v: targets[i], duration: 1.8, ease: 'expo.out' }, at);
+});
+tl.fromTo('#flyerCard', { y: 200, rotation: 12, opacity: 0 }, { y: 0, rotation: 4, opacity: 1, duration: 1.4 }, 26.3);
+tl.fromTo('#flyerCard img', { scale: 1.3 }, { scale: 1.06, duration: 5.7, ease: 'power2.out' }, 26.3);
+tl.fromTo('#s6 .backed > *', { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.8, stagger: 0.12 }, 29.0);
+tl.fromTo('#flash', { opacity: 0 }, { opacity: 0.85, duration: 0.12, ease: 'power2.in', immediateRender: false }, 31.88);
+tl.to('#flash', { opacity: 0, duration: 0.4, ease: 'power2.out' }, 32.0);
+hide('#s6', 32);
+
+/* ---------- S7 · merch (32–36) ---------- */
+show('#s7', 32);
+$$('#s7 .sw').forEach((w, i) => {
+  const at = 32 + i * 0.5;
+  tl.fromTo(w, { scale: 1.9, opacity: 0, y: 30 }, { scale: 1, opacity: 1, y: 0, duration: 0.45, ease: 'expo.out' }, at);
+  tl.fromTo('#stage', { x: 0, y: 0 }, { keyframes: [{ x: -7, y: 5, duration: 0.04 }, { x: 6, y: -4, duration: 0.05 }, { x: -3, y: 2, duration: 0.06 }, { x: 0, y: 0, duration: 0.08 }], ease: 'none' }, at);
+});
+tl.fromTo('#s7 .ct', { y: 200, rotation: 14, opacity: 0 }, { y: 0, rotation: 3, opacity: 1, duration: 1.1 }, 32.0);
+tl.fromTo('#s7 .ct img', { scale: 1.25 }, { scale: 1.05, duration: 4, ease: 'power2.out' }, 32.0);
+tl.fromTo('#s7 .ck', { y: 160, rotation: -20, opacity: 0, scale: 0.8 }, { y: 0, rotation: -7, opacity: 1, scale: 1, duration: 1.0 }, 33.55);
+tl.fromTo('#s7 .ck img', { scale: 2.1 }, { scale: 1.75, duration: 2.45, ease: 'power2.out' }, 33.55);
+tl.fromTo('#s7 .url', { clipPath: 'inset(0 100% 0 0)' }, { clipPath: 'inset(0 0% 0 0)', duration: 0.6, ease: 'steps(10)' }, 34.1);
+tl.to('#s7 .slogan', { scale: 1.04, transformOrigin: '0% 50%', duration: 2, ease: 'none' }, 34);
+wipe(36);
+hide('#s7', 36);
+
+/* ---------- S8 · outro (36–40) ---------- */
+show('#s8', 36);
+planksIn('#s8', 35.9);
+wordmarkIn('#s8', 36.2);
+rise(words('#s8 .tag'), 36.9);
+tl.fromTo('#s8 .rule', { scaleX: 0 }, { scaleX: 1, duration: 1.3, ease: 'expo.inOut' }, 37.2);
+tl.fromTo('#s8 .url', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.9 }, 37.5);
+tl.fromTo('#s8 .url u', { '--ul': 0 }, { '--ul': 1, duration: 0.9, ease: 'expo.inOut' }, 37.8);
+tl.fromTo('#s8 .thx', { opacity: 0 }, { opacity: 1, duration: 1, ease: 'power2.out' }, 38.2);
+tl.fromTo('#s8 .planks', { x: 0 }, { x: -30, duration: 4, ease: 'none' }, 36);
+
+/* ---------- HUD (chapters + progress) ---------- */
+tl.fromTo('#hud', { opacity: 0 }, { opacity: 1, duration: 0.5, ease: 'power2.out' }, 4.3);
+tl.to('#hud', { color: '#0e0a08', duration: 0.3, ease: 'none' }, 19.7);
+tl.to('#hud', { color: '#ffffff', duration: 0.01, ease: 'none' }, 25.75);
+tl.to('#hud', { opacity: 0, duration: 0.3, ease: 'power2.in' }, 35.5);
+tl.to('#glow', { x: -500, y: 300, duration: DURATION, ease: 'sine.inOut' }, 0);
+tl.set({}, {}, DURATION);
+
+const CHAPTERS = [[4, '01 / 05 — Tech Talk Stage'], [8, '02 / 05 — The Talk'], [14, '03 / 05 — The Booth'], [20, '04 / 05 — What we do'], [26, '05 / 05 — By the numbers'], [32, 'Let there be robots.']];
+const chapterEl = $('#chapter'), prog = $('#progbar'), grain = $('#grain'), countEls = $$('[data-count]');
+let lastChapter = '';
+function frameHook(t) {
+  let c = CHAPTERS[0][1];
+  for (const [at, label] of CHAPTERS) if (t >= at) c = label;
+  if (c !== lastChapter) { chapterEl.textContent = c; lastChapter = c; }
+  prog.style.transform = `scaleX(${Math.min(1, Math.max(0, (t - 4) / 32))})`;
+  const f = Math.floor(t * FPS / 2); // grain re-rolls every other frame
+  const r = rng(f * 9973 + 1);
+  grain.style.backgroundPosition = `${Math.floor(r() * 256)}px ${Math.floor(r() * 256)}px`;
+  countEls.forEach((el, i) => el.textContent = fmt[i](counters[i].v));
+}
+
+/* ---------- API for the renderer ---------- */
+window.__DURATION = DURATION;
+window.__FPS = FPS;
+window.__seek = t => { tl.seek(t, false); frameHook(t); };
+window.__ready = Promise.all([document.fonts.ready, ...$$('img').map(i => i.decode().catch(() => {}))]);
+
+/* ---------- preview player ---------- */
+const music = $('#music'), scrub = $('#scrub'), tc = $('#tc'), btn = $('#play');
+let playing = false, t0 = 0, startT = 0;
+function loop(now) {
+  if (!playing) return;
+  let t = startT + (now - t0) / 1000;
+  if (t >= DURATION) { t = 0; startT = 0; t0 = now; try { music.currentTime = 0; } catch (e) {} }
+  if (!music.paused && Math.abs(music.currentTime - t) > 0.08) t = music.currentTime;
+  window.__seek(t); scrub.value = t; tc.textContent = t.toFixed(2).padStart(5, '0');
+  requestAnimationFrame(loop);
+}
+function play() { playing = true; t0 = performance.now(); startT = +scrub.value; try { music.currentTime = startT; music.play().catch(() => {}); } catch (e) {} btn.textContent = 'Pause'; requestAnimationFrame(loop); }
+function pause() { playing = false; music.pause(); btn.textContent = 'Play'; }
+btn.onclick = () => playing ? pause() : play();
+scrub.oninput = () => { pause(); window.__seek(+scrub.value); tc.textContent = (+scrub.value).toFixed(2).padStart(5, '0'); };
+window.__seek(RENDER ? 0 : 0);
+if (!RENDER) window.__ready.then(() => window.__seek(0.0001));
+})();
+</script>
+</body>
+</html>

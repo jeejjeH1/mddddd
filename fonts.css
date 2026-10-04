@@ -1,0 +1,4 @@
+@font-face{font-family:'Instrument Serif';font-style:normal;font-weight:400;font-display:block;src:url(assets/fonts/InstrumentSerif-400.woff2) format('woff2');}
+@font-face{font-family:'Instrument Serif';font-style:italic;font-weight:400;font-display:block;src:url(assets/fonts/InstrumentSerif-400i.woff2) format('woff2');}
+@font-face{font-family:'Inter Tight';font-style:normal;font-weight:100 900;font-display:block;src:url(assets/fonts/InterTight-var.woff2) format('woff2');}
+@font-face{font-family:'JetBrains Mono';font-style:normal;font-weight:100 800;font-display:block;src:url(assets/fonts/JetBrainsMono-var.woff2) format('woff2');}
